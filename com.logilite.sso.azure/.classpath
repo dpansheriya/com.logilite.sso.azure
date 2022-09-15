@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="lib/msal4j-1.10.1.jar"/>
+	<classpathentry kind="lib" path="lib/nimbus-jose-jwt-9.9.3.jar"/>
+	<classpathentry kind="lib" path="lib/oauth2-oidc-sdk-9.7.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.7.28.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-databind-2.12.1.jar"/>
+	<classpathentry kind="lib" path="lib/jcip-annotations-1.0-1.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-core-2.12.1.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-annotations-2.12.1.jar"/>
+	<classpathentry kind="lib" path="lib/accessors-smart-2.4.7.jar"/>
+	<classpathentry kind="lib" path="lib/asm-9.1.jar"/>
+	<classpathentry kind="lib" path="lib/ckez.jar"/>
+	<classpathentry kind="lib" path="lib/content-type-2.1.jar"/>
+	<classpathentry kind="lib" path="lib/daisydiff.jar"/>
+	<classpathentry kind="lib" path="lib/lang-tag-1.5.jar"/>
+	<classpathentry kind="lib" path="lib/owasp-java-html-sanitizer.jar"/>
+	<classpathentry kind="lib" path="lib/json-smart-2.4.7.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
