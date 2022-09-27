@@ -62,8 +62,19 @@ public class SSOMicrosoftAzure implements ISSOPrinciple
 	{
 		if (SessionManagementHelper.getAuthSessionObject(request) != null)
 			return;
-
+		
 		String currentUri = request.getRequestURL().toString();
+		if(request.getHeader("X-Forwarded-Host")!=null)
+		{	
+			log.fine("Old uri:" + currentUri);
+			currentUri = authHelper.getRedirectURIs();
+			log.fine("Replace URI:" +  currentUri);
+		}
+		log.log(Level.FINE,"CurrentURI:" + currentUri);
+		log.log(Level.FINE,"X-Forwarded-Host:" + request.getHeader("X-Forwarded-Host"));
+
+		
+		
 		String queryStr = request.getQueryString();
 		String fullUrl = currentUri + (queryStr != null ? "?" + queryStr : "");
 		authHelper.processAuthenticationCodeRedirect(request, currentUri, fullUrl);
