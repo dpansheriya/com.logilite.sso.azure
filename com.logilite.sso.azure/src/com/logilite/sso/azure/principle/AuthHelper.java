@@ -17,6 +17,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
 
 import javax.naming.ServiceUnavailableException;
 import javax.servlet.http.HttpServletRequest;
@@ -24,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.adempiere.webui.sso.ISSOPrinciple;
 import org.compiere.model.I_SSO_PrincipleConfig;
+import org.compiere.util.CLogger;
 import org.compiere.util.Util;
 
 import com.microsoft.aad.msal4j.AuthorizationCodeParameters;
@@ -48,7 +50,8 @@ import com.nimbusds.openid.connect.sdk.AuthenticationSuccessResponse;
  */
 public class AuthHelper
 {
-
+	/** Logger */
+	protected static CLogger		log				= CLogger.getCLogger(AuthHelper.class);
 	private String	clientId;
 	private String	clientSecret;
 	private String	authorityAPIURL;
@@ -72,25 +75,28 @@ public class AuthHelper
 		}
 		// validate that state in response equals to state in request
 		StateData stateData = SessionManagementHelper.validateState(httpRequest.getSession(), params.get(SessionManagementHelper.STATE).get(0));
-
+		log.fine("Validate state successfull");
 		AuthenticationResponse authResponse = AuthenticationResponseParser.parse(new URI(fullUrl), params);
 		if (AuthHelper.isAuthenticationSuccessful(authResponse))
 		{
+			log.fine("Success Auth response received");
 			AuthenticationSuccessResponse oidcResponse = (AuthenticationSuccessResponse) authResponse;
 			// validate that OIDC Auth Response matches Code Flow (contains only requested
 			// artifacts)
 			validateAuthRespMatchesAuthCodeFlow(oidcResponse);
-
+			log.log(Level.FINE,"Auth code flow validated");
 			IAuthenticationResult result = getAuthResultByAuthCode(httpRequest, oidcResponse.getAuthorizationCode(), currentUri);
-
+			log.log(Level.FINE,"Retrieved Authentication Result");
 			// validate nonce to prevent reply attacks (code maybe substituted to one with broader
 			// access)
 			validateNonce(stateData, getNonceClaimValueFromIdToken(result.idToken()));
+			log.log(Level.FINE,"Succesfully authenticated");
 			SessionManagementHelper.setSessionPrincipal(httpRequest, result);
 
 		}
 		else
 		{
+			log.log(Level.FINE,"Authentication Failed");
 			AuthenticationErrorResponse oidcResponse = (AuthenticationErrorResponse) authResponse;
 			throw new Exception(String.format("Request for auth code failed: %s - %s", oidcResponse.getErrorObject().getCode(), oidcResponse.getErrorObject().getDescription()));
 		}

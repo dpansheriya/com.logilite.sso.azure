@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.Map;
+import java.util.logging.Level;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -23,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.adempiere.webui.sso.ISSOPrinciple;
 import org.compiere.model.I_SSO_PrincipleConfig;
 import org.compiere.model.MSysConfig;
+import org.compiere.util.CLogger;
 import org.compiere.util.Language;
 
 import com.microsoft.aad.msal4j.IAuthenticationResult;
@@ -36,7 +38,8 @@ import com.nimbusds.jwt.JWTParser;
  */
 public class SSOMicrosoftAzure implements ISSOPrinciple
 {
-
+	/** Logger */
+	protected static CLogger		log				= CLogger.getCLogger(SSOMicrosoftAzure.class);
 	AuthHelper authHelper = null;
 
 	public SSOMicrosoftAzure(I_SSO_PrincipleConfig config)
