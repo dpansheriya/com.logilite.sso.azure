@@ -28,7 +28,7 @@ public class SessionManagementHelper
 	public static final Integer	STATE_TTL						= 3600;
 
 	public static final String	FAILED_TO_VALIDATE_MESSAGE		= "Failed to validate data received from Authorization service - ";
-	public static final String	TOKEN_CACHE_SESSION_ATTRIBUTE	= "token_cache";
+	public static final String	TOKEN_CACHE_SESSION_ATTRIBUTE	= "sso.token.cache";
 
 	static StateData validateState(HttpSession session, String state) throws Exception
 	{
