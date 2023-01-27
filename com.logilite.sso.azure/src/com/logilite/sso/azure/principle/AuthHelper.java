@@ -23,7 +23,7 @@ import javax.naming.ServiceUnavailableException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.adempiere.webui.sso.ISSOPrinciple;
+import org.adempiere.base.sso.ISSOPrinciple;
 import org.compiere.model.I_SSO_PrincipleConfig;
 import org.compiere.util.CLogger;
 import org.compiere.util.Util;
@@ -56,6 +56,8 @@ public class AuthHelper
 	private String	clientSecret;
 	private String	authorityAPIURL;
 	private String	redirectURIs;
+	private String	redirectMonitorURIs;
+	private String	redirectOSGIURIs;
 	private String	baseURL	= "https://login.microsoftonline.com/";
 
 	public AuthHelper(I_SSO_PrincipleConfig config)
@@ -63,6 +65,8 @@ public class AuthHelper
 		clientId = config.getSSO_ApplicationClientID();
 		clientSecret = config.getSSO_ApplicationSecretKey();
 		redirectURIs = config.getSSO_ApplicationRedirectURIs();
+		redirectMonitorURIs = config.getSSO_IDempMonitorRedirectURIs();
+		redirectOSGIURIs = config.getSSO_OSGIRedirectURIs();
 		authorityAPIURL = baseURL + config.getSSO_AuthorizationTenantID() + "/";
 	}
 
@@ -228,5 +232,15 @@ public class AuthHelper
 	public String getRedirectURIs()
 	{
 		return redirectURIs;
+	}
+	
+	public String getRedirectMonitorURIs()
+	{
+		return redirectMonitorURIs;
+	}
+
+	public String getRedirectOSGIURIs()
+	{
+		return redirectOSGIURIs;
 	}
 }

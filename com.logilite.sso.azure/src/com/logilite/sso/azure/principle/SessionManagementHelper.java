@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.adempiere.webui.sso.ISSOPrinciple;
+import org.adempiere.base.sso.ISSOPrinciple;
 import org.compiere.util.Util;
 
 import com.microsoft.aad.msal4j.IAuthenticationResult;

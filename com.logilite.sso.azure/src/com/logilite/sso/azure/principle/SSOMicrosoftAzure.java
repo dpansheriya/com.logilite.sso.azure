@@ -21,7 +21,7 @@ import java.util.logging.Level;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.adempiere.webui.sso.ISSOPrinciple;
+import org.adempiere.base.sso.ISSOPrinciple;
 import org.compiere.model.I_SSO_PrincipleConfig;
 import org.compiere.model.MSysConfig;
 import org.compiere.util.CLogger;
@@ -58,7 +58,7 @@ public class SSOMicrosoftAzure implements ISSOPrinciple
 	}
 
 	@Override
-	public void getAuthenticationToken(HttpServletRequest request, HttpServletResponse response) throws Throwable
+	public void getAuthenticationToken(HttpServletRequest request, HttpServletResponse response, String redirectMode) throws Throwable
 	{
 		if (SessionManagementHelper.getAuthSessionObject(request) != null)
 			return;
@@ -67,7 +67,7 @@ public class SSOMicrosoftAzure implements ISSOPrinciple
 		if(request.getHeader("X-Forwarded-Host")!=null)
 		{	
 			log.fine("Old uri:" + currentUri);
-			currentUri = authHelper.getRedirectURIs();
+			currentUri = getRedirectedURL(redirectMode);
 			log.fine("Replace URI:" +  currentUri);
 		}
 		log.log(Level.FINE,"CurrentURI:" + currentUri);
@@ -90,9 +90,18 @@ public class SSOMicrosoftAzure implements ISSOPrinciple
 	}
 
 	@Override
-	public void redirectForAuthentication(HttpServletRequest request, HttpServletResponse response) throws IOException
+	public void redirectForAuthentication(HttpServletRequest request, HttpServletResponse response, String redirectMode) throws IOException
 	{
-		authHelper.sendAuthRedirect(request, response, null, authHelper.getRedirectURIs());
+		authHelper.sendAuthRedirect(request, response, null, getRedirectedURL(redirectMode));
+	}
+
+	private String getRedirectedURL(String redirectMode)
+	{
+		if (SSO_MODE_OSGI.equalsIgnoreCase(redirectMode))
+			return authHelper.getRedirectOSGIURIs();
+		else if (SSO_MODE_MONITIOR.equalsIgnoreCase(redirectMode))
+			return authHelper.getRedirectMonitorURIs();
+		return authHelper.getRedirectURIs();
 	}
 
 	@Override
@@ -103,7 +112,7 @@ public class SSOMicrosoftAzure implements ISSOPrinciple
 	}
 
 	@Override
-	public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws Throwable
+	public void refreshToken(HttpServletRequest request, HttpServletResponse response, String redirectMode) throws Throwable
 	{
 		IAuthenticationResult authResult = authHelper.getAuthResultBySilentFlow(request, response);
 		SessionManagementHelper.setSessionPrincipal(request, authResult);
