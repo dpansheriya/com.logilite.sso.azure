@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.adempiere.base.sso.ISSOPrinciple;
+import org.adempiere.base.sso.SSOUtils;
 import org.compiere.model.I_SSO_PrincipleConfig;
 import org.compiere.model.MSysConfig;
 import org.compiere.util.CLogger;
@@ -97,9 +98,9 @@ public class SSOMicrosoftAzure implements ISSOPrinciple
 
 	private String getRedirectedURL(String redirectMode)
 	{
-		if (SSO_MODE_OSGI.equalsIgnoreCase(redirectMode))
+		if (SSOUtils.SSO_MODE_OSGI.equalsIgnoreCase(redirectMode))
 			return authHelper.getRedirectOSGIURIs();
-		else if (SSO_MODE_MONITIOR.equalsIgnoreCase(redirectMode))
+		else if (SSOUtils.SSO_MODE_MONITIOR.equalsIgnoreCase(redirectMode))
 			return authHelper.getRedirectMonitorURIs();
 		return authHelper.getRedirectURIs();
 	}
