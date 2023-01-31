@@ -55,18 +55,12 @@ public class AuthHelper
 	private String	clientId;
 	private String	clientSecret;
 	private String	authorityAPIURL;
-	private String	redirectURIs;
-	private String	redirectMonitorURIs;
-	private String	redirectOSGIURIs;
 	private String	baseURL	= "https://login.microsoftonline.com/";
 
 	public AuthHelper(I_SSO_PrincipleConfig config)
 	{
 		clientId = config.getSSO_ApplicationClientID();
 		clientSecret = config.getSSO_ApplicationSecretKey();
-		redirectURIs = config.getSSO_ApplicationRedirectURIs();
-		redirectMonitorURIs = config.getSSO_IDempMonitorRedirectURIs();
-		redirectOSGIURIs = config.getSSO_OSGIRedirectURIs();
 		authorityAPIURL = baseURL + config.getSSO_AuthorizationTenantID() + "/";
 	}
 
@@ -227,20 +221,5 @@ public class AuthHelper
 	public static boolean isAuthenticationSuccessful(AuthenticationResponse authResponse)
 	{
 		return authResponse instanceof AuthenticationSuccessResponse;
-	}
-
-	public String getRedirectURIs()
-	{
-		return redirectURIs;
-	}
-	
-	public String getRedirectMonitorURIs()
-	{
-		return redirectMonitorURIs;
-	}
-
-	public String getRedirectOSGIURIs()
-	{
-		return redirectOSGIURIs;
 	}
 }

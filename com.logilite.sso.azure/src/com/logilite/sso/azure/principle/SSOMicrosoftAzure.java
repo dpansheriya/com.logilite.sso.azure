@@ -40,12 +40,14 @@ import com.nimbusds.jwt.JWTParser;
 public class SSOMicrosoftAzure implements ISSOPrinciple
 {
 	/** Logger */
-	protected static CLogger		log				= CLogger.getCLogger(SSOMicrosoftAzure.class);
-	AuthHelper authHelper = null;
+	protected static CLogger		log			= CLogger.getCLogger(SSOMicrosoftAzure.class);
+	private AuthHelper				authHelper	= null;
+	private I_SSO_PrincipleConfig	config		= null;
 
 	public SSOMicrosoftAzure(I_SSO_PrincipleConfig config)
 	{
 		authHelper = new AuthHelper(config);
+		this.config = config;
 	}
 
 	@Override
@@ -63,19 +65,17 @@ public class SSOMicrosoftAzure implements ISSOPrinciple
 	{
 		if (SessionManagementHelper.getAuthSessionObject(request) != null)
 			return;
-		
-		String currentUri = request.getRequestURL().toString();
-		if(request.getHeader("X-Forwarded-Host")!=null)
-		{	
-			log.fine("Old uri:" + currentUri);
-			currentUri = getRedirectedURL(redirectMode);
-			log.fine("Replace URI:" +  currentUri);
-		}
-		log.log(Level.FINE,"CurrentURI:" + currentUri);
-		log.log(Level.FINE,"X-Forwarded-Host:" + request.getHeader("X-Forwarded-Host"));
 
-		
-		
+		String currentUri = request.getRequestURL().toString();
+		if (request.getHeader("X-Forwarded-Host") != null)
+		{
+			log.fine("Old uri:" + currentUri);
+			currentUri = SSOUtils.getRedirectedURL(redirectMode, config);
+			log.fine("Replace URI:" + currentUri);
+		}
+		log.log(Level.FINE, "CurrentURI:" + currentUri);
+		log.log(Level.FINE, "X-Forwarded-Host:" + request.getHeader("X-Forwarded-Host"));
+
 		String queryStr = request.getQueryString();
 		String fullUrl = currentUri + (queryStr != null ? "?" + queryStr : "");
 		authHelper.processAuthenticationCodeRedirect(request, currentUri, fullUrl);
@@ -93,16 +93,7 @@ public class SSOMicrosoftAzure implements ISSOPrinciple
 	@Override
 	public void redirectForAuthentication(HttpServletRequest request, HttpServletResponse response, String redirectMode) throws IOException
 	{
-		authHelper.sendAuthRedirect(request, response, null, getRedirectedURL(redirectMode));
-	}
-
-	private String getRedirectedURL(String redirectMode)
-	{
-		if (SSOUtils.SSO_MODE_OSGI.equalsIgnoreCase(redirectMode))
-			return authHelper.getRedirectOSGIURIs();
-		else if (SSOUtils.SSO_MODE_MONITIOR.equalsIgnoreCase(redirectMode))
-			return authHelper.getRedirectMonitorURIs();
-		return authHelper.getRedirectURIs();
+		authHelper.sendAuthRedirect(request, response, null, SSOUtils.getRedirectedURL(redirectMode, config));
 	}
 
 	@Override
