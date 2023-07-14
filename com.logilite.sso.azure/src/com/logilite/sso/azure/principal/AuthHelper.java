@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.logilite.sso.azure.principle;
+package com.logilite.sso.azure.principal;
 
-import static com.logilite.sso.azure.principle.SessionManagementHelper.FAILED_TO_VALIDATE_MESSAGE;
+import static com.logilite.sso.azure.principal.SessionManagementHelper.FAILED_TO_VALIDATE_MESSAGE;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -23,8 +23,8 @@ import javax.naming.ServiceUnavailableException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.adempiere.base.sso.ISSOPrinciple;
-import org.compiere.model.I_SSO_PrincipleConfig;
+import org.adempiere.base.sso.ISSOPrincipalService;
+import org.compiere.model.I_SSO_PrincipalConfig;
 import org.compiere.util.CLogger;
 import org.compiere.util.Util;
 
@@ -51,13 +51,13 @@ import com.nimbusds.openid.connect.sdk.AuthenticationSuccessResponse;
 public class AuthHelper
 {
 	/** Logger */
-	protected static CLogger		log				= CLogger.getCLogger(AuthHelper.class);
-	private String	clientId;
-	private String	clientSecret;
-	private String	authorityAPIURL;
-	private String	baseURL	= "https://login.microsoftonline.com/";
+	protected static CLogger	log		= CLogger.getCLogger(AuthHelper.class);
+	private String				clientId;
+	private String				clientSecret;
+	private String				authorityAPIURL;
+	private String				baseURL	= "https://login.microsoftonline.com/";
 
-	public AuthHelper(I_SSO_PrincipleConfig config)
+	public AuthHelper(I_SSO_PrincipalConfig config)
 	{
 		clientId = config.getSSO_ApplicationClientID();
 		clientSecret = config.getSSO_ApplicationSecretKey();
@@ -82,19 +82,20 @@ public class AuthHelper
 			// validate that OIDC Auth Response matches Code Flow (contains only requested
 			// artifacts)
 			validateAuthRespMatchesAuthCodeFlow(oidcResponse);
-			log.log(Level.FINE,"Auth code flow validated");
+			log.log(Level.FINE, "Auth code flow validated");
 			IAuthenticationResult result = getAuthResultByAuthCode(httpRequest, oidcResponse.getAuthorizationCode(), currentUri);
-			log.log(Level.FINE,"Retrieved Authentication Result");
-			// validate nonce to prevent reply attacks (code maybe substituted to one with broader
+			log.log(Level.FINE, "Retrieved Authentication Result");
+			// validate nonce to prevent reply attacks (code maybe substituted to one with
+			// broader
 			// access)
 			validateNonce(stateData, getNonceClaimValueFromIdToken(result.idToken()));
-			log.log(Level.FINE,"Succesfully authenticated");
+			log.log(Level.FINE, "Succesfully authenticated");
 			SessionManagementHelper.setSessionPrincipal(httpRequest, result);
 
 		}
 		else
 		{
-			log.log(Level.FINE,"Authentication Failed");
+			log.log(Level.FINE, "Authentication Failed");
 			AuthenticationErrorResponse oidcResponse = (AuthenticationErrorResponse) authResponse;
 			throw new Exception(String.format("Request for auth code failed: %s - %s", oidcResponse.getErrorObject().getCode(), oidcResponse.getErrorObject().getDescription()));
 		}
@@ -215,7 +216,7 @@ public class AuthHelper
 
 	public static boolean isAuthenticated(HttpServletRequest request)
 	{
-		return request.getSession().getAttribute(ISSOPrinciple.SSO_PRINCIPLE_SESSION_NAME) != null;
+		return request.getSession().getAttribute(ISSOPrincipalService.SSO_PRINCIPAL_SESSION_TOKEN) != null;
 	}
 
 	public static boolean isAuthenticationSuccessful(AuthenticationResponse authResponse)

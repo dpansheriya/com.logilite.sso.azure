@@ -10,7 +10,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,    *
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
  *****************************************************************************/
-package com.logilite.sso.azure.principle;
+package com.logilite.sso.azure.principal;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -21,9 +21,10 @@ import java.util.logging.Level;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.adempiere.base.sso.ISSOPrinciple;
+import org.adempiere.base.sso.ISSOPrincipalService;
 import org.adempiere.base.sso.SSOUtils;
-import org.compiere.model.I_SSO_PrincipleConfig;
+import org.adempiere.exceptions.AdempiereException;
+import org.compiere.model.I_SSO_PrincipalConfig;
 import org.compiere.model.MSysConfig;
 import org.compiere.util.CLogger;
 import org.compiere.util.Language;
@@ -37,14 +38,14 @@ import com.nimbusds.jwt.JWTParser;
  * 
  * @author Logilite Technologies
  */
-public class SSOMicrosoftAzure implements ISSOPrinciple
+public class SSOMicrosoftAzure implements ISSOPrincipalService
 {
 	/** Logger */
 	protected static CLogger		log			= CLogger.getCLogger(SSOMicrosoftAzure.class);
 	private AuthHelper				authHelper	= null;
-	private I_SSO_PrincipleConfig	config		= null;
+	private I_SSO_PrincipalConfig	config		= null;
 
-	public SSOMicrosoftAzure(I_SSO_PrincipleConfig config)
+	public SSOMicrosoftAzure(I_SSO_PrincipalConfig config)
 	{
 		authHelper = new AuthHelper(config);
 		this.config = config;
@@ -78,8 +79,29 @@ public class SSOMicrosoftAzure implements ISSOPrinciple
 
 		String queryStr = request.getQueryString();
 		String fullUrl = currentUri + (queryStr != null ? "?" + queryStr : "");
-		authHelper.processAuthenticationCodeRedirect(request, currentUri, fullUrl);
-		((HttpServletResponse) response).sendRedirect(currentUri);
+		boolean isForwardError = false;
+		String errorMsg = null;
+		try
+		{
+			authHelper.processAuthenticationCodeRedirect(request, currentUri, fullUrl);
+		}
+		catch (Exception e)
+		{
+			if (!e.getLocalizedMessage().endsWith("could not validate state"))
+			{
+				isForwardError = true;
+				errorMsg = e.getLocalizedMessage();
+			}
+			log.log(Level.SEVERE, e.getLocalizedMessage(), e);
+		}
+		finally
+		{
+			if (isForwardError)
+				throw new AdempiereException(errorMsg);
+			else
+				((HttpServletResponse) response).sendRedirect(currentUri);
+		}
+
 	}
 
 	@Override
@@ -87,7 +109,7 @@ public class SSOMicrosoftAzure implements ISSOPrinciple
 	{
 		if (request.getSession() == null)
 			return false;
-		return request.getSession().getAttribute(ISSOPrinciple.SSO_PRINCIPLE_SESSION_NAME) != null;
+		return request.getSession().getAttribute(ISSOPrincipalService.SSO_PRINCIPAL_SESSION_TOKEN) != null;
 	}
 
 	@Override
@@ -96,14 +118,12 @@ public class SSOMicrosoftAzure implements ISSOPrinciple
 		authHelper.sendAuthRedirect(request, response, null, SSOUtils.getRedirectedURL(redirectMode, config));
 	}
 
-	@Override
 	public boolean isAccessTokenExpired(HttpServletRequest request, HttpServletResponse response)
 	{
 		IAuthenticationResult result = SessionManagementHelper.getAuthSessionObject(request);
 		return result.expiresOnDate().before(new Date());
 	}
 
-	@Override
 	public void refreshToken(HttpServletRequest request, HttpServletResponse response, String redirectMode) throws Throwable
 	{
 		IAuthenticationResult authResult = authHelper.getAuthResultBySilentFlow(request, response);
@@ -111,7 +131,7 @@ public class SSOMicrosoftAzure implements ISSOPrinciple
 	}
 
 	@Override
-	public void removePrincipleFromSession(HttpServletRequest httpRequest)
+	public void removePrincipalFromSession(HttpServletRequest httpRequest)
 	{
 		SessionManagementHelper.removePrincipalFromSession(httpRequest);
 	}

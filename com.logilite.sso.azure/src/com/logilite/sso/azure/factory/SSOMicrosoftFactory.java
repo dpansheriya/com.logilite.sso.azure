@@ -12,22 +12,22 @@
  *****************************************************************************/
 package com.logilite.sso.azure.factory;
 
-import org.adempiere.base.sso.ISSOPrinciple;
-import org.adempiere.base.sso.ISSOPrincipleFactory;
-import org.compiere.model.I_SSO_PrincipleConfig;
+import org.adempiere.base.sso.ISSOPrincipalFactory;
+import org.adempiere.base.sso.ISSOPrincipalService;
+import org.compiere.model.I_SSO_PrincipalConfig;
 
-import com.logilite.sso.azure.principle.SSOMicrosoftAzure;
+import com.logilite.sso.azure.principal.SSOMicrosoftAzure;
 
 /**
  * Microsoft Azure AD SSO login factory
  * 
  * @author Logilite Technologies
  */
-public class SSOMicrosoftFactory implements ISSOPrincipleFactory
+public class SSOMicrosoftFactory implements ISSOPrincipalFactory
 {
 
 	@Override
-	public ISSOPrinciple getSSOPrincipleService(I_SSO_PrincipleConfig config)
+	public ISSOPrincipalService getSSOPrincipalService(I_SSO_PrincipalConfig config)
 	{
 		if ("MSAZURE".equalsIgnoreCase(config.getSSO_Provider()))
 			return new SSOMicrosoftAzure(config);

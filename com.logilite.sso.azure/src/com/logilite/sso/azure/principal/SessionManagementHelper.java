@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.logilite.sso.azure.principle;
+package com.logilite.sso.azure.principal;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.adempiere.base.sso.ISSOPrinciple;
+import org.adempiere.base.sso.ISSOPrincipalService;
 import org.compiere.util.Util;
 
 import com.microsoft.aad.msal4j.IAuthenticationResult;
@@ -97,20 +97,20 @@ public class SessionManagementHelper
 
 	public static void setSessionPrincipal(HttpServletRequest httpRequest, IAuthenticationResult result)
 	{
-		httpRequest.getSession().setAttribute(ISSOPrinciple.SSO_PRINCIPLE_SESSION_NAME, result);
+		httpRequest.getSession().setAttribute(ISSOPrincipalService.SSO_PRINCIPAL_SESSION_TOKEN, result);
 	}
 
 	public static void removePrincipalFromSession(HttpServletRequest httpRequest)
 	{
-		httpRequest.getSession().removeAttribute(ISSOPrinciple.SSO_PRINCIPLE_SESSION_NAME);
+		httpRequest.getSession().removeAttribute(ISSOPrincipalService.SSO_PRINCIPAL_SESSION_TOKEN);
 	}
 
 	public static IAuthenticationResult getAuthSessionObject(HttpServletRequest request)
 	{
-		Object principalSession = request.getSession().getAttribute(ISSOPrinciple.SSO_PRINCIPLE_SESSION_NAME);
-		if (principalSession instanceof IAuthenticationResult)
+		Object token = request.getSession().getAttribute(ISSOPrincipalService.SSO_PRINCIPAL_SESSION_TOKEN);
+		if (token instanceof IAuthenticationResult)
 		{
-			return (IAuthenticationResult) principalSession;
+			return (IAuthenticationResult) token;
 		}
 		else
 		{
