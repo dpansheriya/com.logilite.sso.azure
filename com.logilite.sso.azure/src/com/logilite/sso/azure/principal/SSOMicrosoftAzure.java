@@ -28,6 +28,7 @@ import org.compiere.model.I_SSO_PrincipalConfig;
 import org.compiere.model.MSysConfig;
 import org.compiere.util.CLogger;
 import org.compiere.util.Language;
+import org.compiere.util.Util;
 
 import com.microsoft.aad.msal4j.IAuthenticationResult;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -99,7 +100,12 @@ public class SSOMicrosoftAzure implements ISSOPrincipalService
 			if (isForwardError)
 				throw new AdempiereException(errorMsg);
 			else
+			{
+				Object param = request.getSession().getAttribute(ISSOPrincipalService.SSO_ZOOM_PARAM);
+				if (param != null && !Util.isEmpty((String) param))
+					currentUri += "?" + (String) param;
 				((HttpServletResponse) response).sendRedirect(currentUri);
+			}
 		}
 
 	}
